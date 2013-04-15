@@ -63,7 +63,7 @@
 										echo str_replace(WP_CONTENT_DIR, '', $assingments[$key]);
 									} else {
 										?>
-										<a href="#assignFile" project="<?php echo $project['id'];?>" language="<?php echo $project['code'];?>" class="assignFile">Assign file</a>
+										<a href="#assignFile" project="<?php echo $project['id'];?>" projectName="<?php echo $project['name'];?>" language="<?php echo $project['code'];?>" class="assignFile">Assign file</a>
 										<?php
 									}
 								?>
@@ -256,7 +256,7 @@
 		<input type="hidden" name="project" id="assignFileProjectId" value="0">
 		<input type="hidden" name="language" id="assignFileLanguageCode" value="">
 		<h2 class="title">
-			Assign a local file to a POEditor project language
+			Assign a local file to a POEditor project language - <span id="assignFileProjectName"></span>
 		</h2>
 		<?php
 		if( is_array($locations) && !empty( $locations) ) {
@@ -433,11 +433,13 @@
 	});
 
 	jQuery('.assignFile').on('click', function(e){
-		var projectId, language;
+		var projectId, projectName, language;
 
 		projectId = jQuery(this).attr('project');
+		projectName = jQuery(this).attr('projectName');
 		language = jQuery(this).attr('language');
 		jQuery("#assignFileProjectId").val(projectId);
+		jQuery("#assignFileProjectName").html(projectName + ' ['+language+']');
 		jQuery("#assignFileLanguageCode").val(language);
 
 		jQuery("div#assignFile").fadeIn();
