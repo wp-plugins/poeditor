@@ -4,7 +4,7 @@ Donate link:
 Tags: localization, translate, api
 Requires at least: 3.5
 Tested up to: 3.5.1
-Stable tag: 0.9
+Stable tag: 0.9.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -33,4 +33,4 @@ If the import gives you a writing permissions error, you should go to the path t
 == Screenshots ==
 
 1. Main plugin page
-
+2. Assign local file to Poeditor language

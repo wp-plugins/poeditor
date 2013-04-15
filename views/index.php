@@ -13,14 +13,14 @@
 		?>
 	</h1>
 	<br clear="all">
-
-	<h2 class="title poeditorTableTitle">
-		POEditor translations
-	</h2>
 	<a class="button-secondary poeditorTableExtraLink" href="<?php echo POEDITOR_PATH;?>&amp;do=getProjects" title="<?php _e( 'Refresh online projects list' ); ?>">
 		<span class="buttons-icon-refresh"></span>
 		<?php _e( 'Refresh online projects list' ); ?>
 	</a>
+	<h2 class="title poeditorTableTitle">
+		POEditor translations
+	</h2>
+
 	<br clear="all">
 	<?php
 	if( is_array($projects) && !empty( $projects) ) {
@@ -86,9 +86,8 @@
 							?>
 							<tr>
 								<td></td>
-								<td></td>
 								<td>
-									<a href="#addLanguage" class="addLanguageButton " rel="<?php echo $project['id'];?>">+ Add language to "<?php echo $project['name'];?>"</a>
+									<a href="#addLanguage" class="addLanguageButton button-secondary" rel="<?php echo $project['id'];?>">+ Add language to "<?php echo $project['name'];?>"</a>
 									<form action="<?php echo POEDITOR_PATH;?>&amp;do=addLanguage" class="addLanguage" id="addLanguage_<?php echo $project['id'];?>" method="post">
 										<select name="language">
 											<?php
@@ -115,9 +114,8 @@
 					}
 				?>
 				<tr>
-					<td></td>
 					<td colspan="5">
-						<a href="#addProject" class="addProjectButton">+ Create project</a>
+						<a href="#addProject" class="addProjectButton button-secondary">+ Create project</a>
 						<form action="<?php echo POEDITOR_PATH;?>&amp;do=addProject" class="addProject" method="post">
 							<input type="text" name="project" id="projectNameInput">
 							<input type="submit" name="submit" id="submit" class="button button-primary" value="Create project">
@@ -148,7 +146,13 @@
 		<?php
 	} else {
 		?>
-		<a class="button-secondary" href="<?php echo POEDITOR_PATH;?>&amp;do=getProjects" title="<?php _e( 'No projects found yet. Sync now' ); ?>"><?php _e( 'No projects found yet. Sync now' ); ?></a>
+		<p><?php _e('Found no projects in your poeditor.com account.'); ?></p>
+		
+		<a href="#addProject" class="addProjectButton button-primary">+ Create project</a>
+		<form action="<?php echo POEDITOR_PATH;?>&amp;do=addProject" class="addProject" method="post">
+			<input type="text" name="project" id="projectNameInput">
+			<input type="submit" name="submit" id="submit" class="button button-primary" value="Create project">
+		</form>
 		<?php
 	}
 	?>
@@ -358,7 +362,7 @@
 		<a href="#cancel" class="button button-primary" id="cancelFileAssign">Cancel</a>
 	</div>
 	<p>
-		<img src="<?php echo plugins_url( '_resources/img/warning.png' , __FILE__ );?>" class="poeditorWarningIcon" alt="This folder is not writable"> = The folder or file is not writable
+		<img src="<?php echo plugins_url( '_resources/img/warning.png' , __FILE__ );?>" class="poeditorWarningIcon" alt="This folder is not writable"> = The folder or file is not writable (so we won't be able to update the files with the information from poeditor.com)
 	</p>
 
 	<div id="resetConfirm">
