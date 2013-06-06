@@ -7,9 +7,9 @@
 	<div class="tool-box">
 		<div class="icon16">
 			<?php
-				echo '<img src="' . plugins_url( '_resources/img/preloader.gif' , __FILE__ ) . '" alt="Loading..." > ';
+				echo '<img src="' . plugins_url( '_resources/img/preloader.gif' , __FILE__ ) . '" alt="'.__('Loading', 'poeditor').'&hellip;" > ';
 			?>
 		</div>
-		<p>Retrieving online projects from POEditor.com. Please wait...</p>
+		<p><?php _e('Retrieving online projects from POEditor.com. Please wait', 'poeditor'); ?>&hellip;</p>
 	</div>
 </div>

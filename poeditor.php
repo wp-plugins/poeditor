@@ -3,20 +3,21 @@
 	Plugin Name: POEditor
 	Plugin URI: https://poeditor.com/
 	Description: This plugin will let you manage your POEditor translations directly from Wordpress via the POEditor API.
-	Version: 0.9.1
+	Version: 0.9.2
 	Author: POEditor
 	Author URI: https://poeditor.com/
 	License: GPLv2
 	*/
+	
+	
 
-	ini_set('display_errors', 1);
- 	error_reporting(E_ALL);
 
  	class POEditor { 
 
  		private $api, $apiKey;
 
  		function __construct() {
+ 		
 
  			//define the url to the plugin's page
  			define('POEDITOR_PATH', admin_url( 'tools.php?page=poeditor'));
@@ -24,6 +25,9 @@
  			//append the POEditor element menu to the tools menu
  			add_action( 'admin_menu', array($this, 'configureMenus') );
 
+ 			//load textdomain
+ 			load_plugin_textdomain('poeditor', false, dirname( plugin_basename( __FILE__ ) ) . '/languages/');
+ 			
  			//get the api key
  			$this->apiKey = get_option('poeditor_apikey', false);
 
@@ -99,7 +103,7 @@
 
  			if( $this->api->validateAPIKey() ) {
  				update_option('poeditor_apikey', $_POST['apikey']);
- 				$this->_setFlashMessage('The API Key was succesfully changed', 'updated');
+ 				$this->_setFlashMessage(__('The API Key was succesfully changed', 'poeditor'), 'updated');
 
  				$projects = $this->api->getProjects();
 			
@@ -114,7 +118,7 @@
 
  				wp_redirect(POEDITOR_PATH);
  			} else {
- 				$this->_setFlashMessage('The API Key you set is invalid. Please try again', 'error');
+ 				$this->_setFlashMessage(__('The API Key you set is invalid. Please try again', 'poeditor'), 'error');
  				wp_redirect(POEDITOR_PATH);
  			}
  		}
@@ -127,7 +131,7 @@
  		function addLanguage() {
  			if( !$this->api->validateAPIKey() ) {
  				update_option('poeditor_apikey', '');	
- 				$this->_setFlashMessage('The API Key you set is invalid. Please try again', 'error');
+ 				$this->_setFlashMessage(__('The API Key you set is invalid. Please try again', 'poeditor'), 'error');
  				wp_redirect(POEDITOR_PATH);
  			}
 
@@ -136,7 +140,7 @@
  			if( $addLanguage->response->status == 'success' ) {
  				$projects = $this->api->getProjects();
 				update_option('poeditor_projects', serialize($projects));
-				$this->_setFlashMessage('The language was successfully added', 'updated');
+				$this->_setFlashMessage(__('The language was successfully added', 'poeditor'), 'updated');
  			} else {
  				$this->_setFlashMessage($addLanguage->response->message, 'error');
  			}
@@ -203,21 +207,21 @@
  		function addProject() {
  			if( !$this->api->validateAPIKey() ) {
  				update_option('poeditor_apikey', '');
- 				$this->_setFlashMessage('The API Key you set is invalid. Please try again', 'error');
+ 				$this->_setFlashMessage(__('The API Key you set is invalid. Please try again', 'poeditor'), 'error');
  				wp_redirect(POEDITOR_PATH);
  			}
 
  			$name = $_POST['project'];
 
  			if( $name == '' ) {
- 				$this->_setFlashMessage('Please set the name of the project', 'error');
+ 				$this->_setFlashMessage(__('Please set the name of the project', 'poeditor'), 'error');
  				wp_redirect(POEDITOR_PATH);
  			}
 
  			$response = $this->api->addProject($name);
 
  			if( $response->response->status == 'fail' ) {
- 				$this->_setFlashMessage('Project creation failed: ' . $response->response->message, 'error');
+ 				$this->_setFlashMessage(sprintf(__('Project creation failed: %s', 'poeditor'), $response->response->message), 'error');
  				wp_redirect(POEDITOR_PATH);
  			} else {
  				$projects = $this->api->getProjects();
@@ -235,7 +239,7 @@
  		function getProjects() {
  			if( !$this->api->validateAPIKey() ) {
  				update_option('poeditor_apikey', '');
- 				$this->_setFlashMessage('The API Key you set is invalid. Please try again', 'error');
+ 				$this->_setFlashMessage(__('The API Key you set is invalid. Please try again', 'poeditor') , 'error');
  				wp_redirect(POEDITOR_PATH);
  			}
 
@@ -312,10 +316,10 @@
 
  				if( file_put_contents($path, $newFile) === FALSE) {
  					if( !is_writable(dirname($path)) ) {
-						$this->_setFlashMessage('The <i>' . str_replace(WP_CONTENT_DIR, '', dirname($path)) . '</i> folder is not writable. Please make it writable and try again', 'error');	
+						$this->_setFlashMessage( sprintf(__('The %s folder is not writable. Please make it writable and try again', 'poeditor'), '<i>' . str_replace(WP_CONTENT_DIR, '', dirname($path)) . '</i>'), 'error');
 						wp_redirect(POEDITOR_PATH);
 					} else {
-						$this->_setFlashMessage('The file could not be created. Please make sure that the folder is writable and your host configuration allows you to write files', 'error');
+						$this->_setFlashMessage(__('The file could not be created. Please make sure that the folder is writable and your host configuration allows you to write files', 'poeditor'), 'error');
 						wp_redirect(POEDITOR_PATH);
 					}
 
@@ -359,6 +363,34 @@
  		}
 
  		/**
+		 * function import_all
+		 * 
+		 * This method is used to bulk upload local language files with the export method
+		 */
+ 		function export_all($projectId = '', $redirect = true) {
+			
+ 			$projectId = !empty($projectId) ? $projectId : $_GET['projectId'];
+ 			$type = !empty($type) ? $type : $_GET['type'];
+ 			
+			$projects    = unserialize(get_option('poeditor_projects'));
+			$assingments = unserialize(get_option('poeditor_assingments'));
+			
+			$success = true;
+			
+			foreach($projects as $project){
+				
+				//if current project and a file has been assigned
+				if($projectId == $project['id'] && isset($assingments[$projectId.'_'.$project['code']])){
+					$success = $success && $this->export($type, $projectId, $project['code'], false);
+				}
+			}
+			
+			if($redirect) wp_redirect(POEDITOR_PATH);
+			
+			return $success;
+ 		}
+
+ 		/**
 		 * function export
 		 * 
 		 * This method uploads a local file to POEditor.com
@@ -367,10 +399,11 @@
 		 * - export - updates the online terms and doesn't overwrite anything
 		 * - sync - updates the online definitions and overwrites everything
 		 */
- 		function export( $type = 'export' ) {
+ 		function export( $type = '', $projectId = '', $language = '', $redirect = true ) {
 
- 			$projectId = $_GET['projectId'];
-		 	$language  = $_GET['language'];
+ 			$projectId = !empty($projectId) ? $projectId : $_GET['projectId'];
+ 			$language = !empty($language) ? $language : $_GET['language'];
+ 			$type = !empty($type) ? $type : $_GET['type'];
 
  			switch ($type) {
  				case 'export':
@@ -388,19 +421,54 @@
 			$assingments = unserialize(get_option('poeditor_assingments'));
 			$path        = $assingments[$key];
 
+			$languages   = unserialize(get_option('poeditor_languages'));
+			
+			$success = false;
+			
 			$upload = $this->api->upload($projectId, $path, $language, $overwrite, $updating);
 
 			if( $upload->response->status == 'success' ) {
-				if( $sync ) {
-					$this->_setFlashMessage('The language file was successfully synced', 'updated');
+				if( $type == 'sync' ) {
+					$this->_setFlashMessage( sprintf(__('The language file %1$s for %2$s was successfully synced', 'poeditor'), '<strong>'.(isset($languages[$language]) ? $languages[$language] : $languages[$language]).'</strong>', $projectId));
+					
 				} else {
-					$this->_setFlashMessage('The language file was successfully uploaded to POEditor.com', 'updated');
+					$this->_setFlashMessage( sprintf(__('The language file %1$s for %2$s was successfully uploaded to POEditor.com', 'poeditor'), '<strong>'.(isset($languages[$language]) ? $languages[$language] : $languages[$language]).'</strong>', $projectId));
 				}
+				$success = true;
 			} else {
-				$this->_setFlashMessage('There was a problem with the request: ' . $upload->response->message, 'error');
+					$this->_setFlashMessage( sprintf(__('There was a problem with the request for %1$s: %2$s', 'poeditor'), '<strong>'.(isset($languages[$language]) ? $languages[$language] : $languages[$language]).'</strong>', '<strong>'.$upload->response->message.'</strong>', $projectId), 'error');
 			}
 
-			wp_redirect(POEDITOR_PATH);
+			if($redirect) wp_redirect(POEDITOR_PATH);
+			
+			return $success;
+ 		}
+
+ 		/**
+		 * function import_all
+		 * 
+		 * This method is used to bulk import language files with the import method
+		 */
+ 		function import_all($projectId = '', $redirect = true) {
+			
+ 			$projectId = !empty($projectId) ? $projectId : $_GET['projectId'];
+ 			
+			$projects    = unserialize(get_option('poeditor_projects'));
+			$assingments = unserialize(get_option('poeditor_assingments'));
+			
+			$success = true;
+			
+			foreach($projects as $project){
+				
+				//if current project and a file has been assigned
+				if($projectId == $project['id'] && isset($assingments[$projectId.'_'.$project['code']])){
+					$success = $success && $this->import($projectId, $project['code'], false);
+				}
+			}
+			
+			if($redirect) wp_redirect(POEDITOR_PATH);
+			
+			return $success;
  		}
 
  		/**
@@ -409,9 +477,10 @@
 		 * This method calls the API to download the language files from POEditor.com
 		 * Both the .mo and the .po are downloaded
 		 */
- 		function import() {
- 			$projectId = $_GET['projectId'];
- 			$language  = $_GET['language'];
+ 		function import($projectId = '', $language = '', $redirect = true) {
+ 			
+ 			$projectId = !empty($projectId) ? $projectId : $_GET['projectId'];
+ 			$language = !empty($language) ? $language : $_GET['language'];
 
 			$key         = $projectId . '_' . $language;
 			$assingments = unserialize(get_option('poeditor_assingments'));
@@ -421,36 +490,54 @@
 			$type 		= end($tmp);
 			
 			$path = str_replace('.'.$type, '', $path);
-
+			
+			$languages   = unserialize(get_option('poeditor_languages'));
+			
+			$success = false;
+			
 			//get the extension
 			$download_po = $this->api->download($projectId, $language, 'po');
 			$download_mo = $this->api->download($projectId, $language, 'mo');
-
+			
 			if( $download_po->response->status == 'success' && $download_mo->response->status == 'success') {
 				
 				$remoteFileContents_po = file_get_contents($download_po->item);
 				$remoteFileContents_mo = file_get_contents($download_mo->item);
 
 				if( file_put_contents($path.'.po', $remoteFileContents_po) !== FALSE && file_put_contents($path.'.mo', $remoteFileContents_mo) !== FALSE ) {
-					$this->_setFlashMessage('The language file was successfully imported from POEditor.com', 'updated');	
+					
+					$this->_setFlashMessage( sprintf(__('The language file %1$s for %2$s was successfully imported from POEditor.com', 'poeditor'), '<strong>'.(isset($languages[$language]) ? $languages[$language] : $languages[$language]).'</strong>', $projectId));
+					
+					$success = true;
+				
 				} else {
 					if( !is_writable(dirname($path.'.po')) ) {
-						$this->_setFlashMessage('The <i>' . str_replace(WP_CONTENT_DIR, '', dirname($path)) . '</i> folder is not writable. Please make it writable and try again', 'error');	
+					
+						$this->_setFlashMessage( sprintf(__('The %s folder is not writable. Please make it writable and try again', 'poeditor'), '<i>' . str_replace(WP_CONTENT_DIR, '', dirname($path)) . '</i>'), 'error');
+						
 					} else if( !is_writable($path.'.po') ) {
-						$this->_setFlashMessage('The <i>' . str_replace(WP_CONTENT_DIR, '', $path) . '.po</i> file cannot be overwritten. Please make it writable and try again', 'error');
+					
+						$this->_setFlashMessage( sprintf(__('The %s file cannot be overwritten. Please make it writable and try again', 'poeditor'), '<i>' . str_replace(WP_CONTENT_DIR, '', $path) . '.po</i>'), 'error');
 					} else if( !is_writable($path.'.mo') ) {
-						$this->_setFlashMessage('The <i>' . str_replace(WP_CONTENT_DIR, '', $path) . '.mo</i> file cannot be overwritten. Please make it writable and try again', 'error');
+
+						$this->_setFlashMessage( sprintf(__('The %s file cannot be overwritten. Please make it writable and try again', 'poeditor'), '<i>' . str_replace(WP_CONTENT_DIR, '', $path) . '.mo</i>'), 'error');
+
 					} else {
-						$this->_setFlashMessage('There was a problem importing the language file from POEditor.com', 'error');
+					
+						$this->_setFlashMessage( __('There was a problem importing the language file from POEditor.com', 'poeditor'), 'error');
 					}
 				}
 				
 			} else {
-				$this->_setFlashMessage($response_po->response->message, 'error');
-				$this->_setFlashMessage($response_mo->response->message, 'error');
+				
+				$this->_setFlashMessage( $response_po->response->message);
+				$this->_setFlashMessage( $response_mo->response->message);
+				
 			}
 
-			wp_redirect(POEDITOR_PATH);
+			if($redirect) wp_redirect(POEDITOR_PATH);
+			
+			return $success;
  		}
 
  		/**
@@ -476,8 +563,7 @@
 		 * 
 		 * This method allows the plugin to display session flash messages
 		 */
- 		private function _setFlashMessage($message, $class = null) {
-			$class = ($class === null) ? 'updated' : $class;
+ 		private function _setFlashMessage($message, $class = 'updated') {
             $flash_messages = maybe_unserialize(get_option('poeditor_flash_messages', ''));
             
             if(!isset($flash_messages) || !is_array($flash_messages)) $flash_messages = array();
@@ -549,7 +635,7 @@
  			delete_option('poeditor_languages');
  			delete_option('poeditor_files');
 
- 			$this->_setFlashMessage('The plugin has been reset successfully', 'updated');
+ 			$this->_setFlashMessage(__('The plugin has been reset successfully', 'poeditor'), 'updated');
  			wp_redirect(POEDITOR_PATH);
  		}
 

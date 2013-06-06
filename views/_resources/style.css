@@ -33,7 +33,7 @@ div#assignFile {
 	margin-left: -32%;
 	padding: 2%;
 	position: absolute;
-	top: 10%;
+	top: 10px;
 	width: 60%;
 }
 
@@ -119,7 +119,7 @@ table .poeditorWarningIcon {
 }
 
 .poeditorVerticalAlign {
-	vertical-align: middle !important;
+	vertical-align: top !important;
 	border-right: 1px solid #CCC !important;
 }
 
@@ -134,4 +134,13 @@ table .poeditorWarningIcon {
 	vertical-align: text-top;
 	margin: 0 2px;
 	background: url('../_resources/img/refresh.png');
+}
+table.widefat .poeditorProjectOptions{
+	background: #fff;
+}
+table .poeditorToRight{
+	text-align: right;
+}
+table .poeditorPadLeft{
+	padding-left: 50px;
 }
