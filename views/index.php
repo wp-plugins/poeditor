@@ -5,8 +5,8 @@
 ?>
 <div class="wrap poeditor">
 	<div id="poeditorTopLinks">
-		<a class="button-secondary" href="<?php echo POEDITOR_PATH;?>&amp;do=changeApiKey" title="<?php _e( 'Change API Key', 'poeditor' ); ?>"><?php _e( 'Change API Key', 'poeditor' ); ?></a>
-		<a class="button-secondary poeditorReset" href="#reset" title="<?php _e( 'Reset plugin', 'poeditor' ); ?>"><?php _e( 'Reset plugin', 'poeditor' ); ?></a>
+		<a class="button-secondary" href="<?php echo POEDITOR_PATH;?>&amp;do=changeApiKey"><?php _e( 'Change API Key', 'poeditor' ); ?></a>
+		<a class="button-secondary poeditorReset" href="#reset" title="<?php _e( 'Disconnect plugin from linked POEditor account', 'poeditor' ); ?>"><?php _e( 'Reset plugin', 'poeditor' ); ?></a>
 	</div>
 	<h1>
 		<?php
@@ -14,7 +14,7 @@
 		?>
 	</h1>
 	<br clear="all">
-	<a class="button-secondary poeditorTableExtraLink" href="<?php echo POEDITOR_PATH;?>&amp;do=getProjects" title="<?php _e( 'Refresh online projects list', 'poeditor' ); ?>">
+	<a class="button-secondary poeditorTableExtraLink" href="<?php echo POEDITOR_PATH;?>&amp;do=getProjects" title="<?php _e( 'Update list of POEditor translation projects', 'poeditor' ); ?>">
 		<span class="buttons-icon-refresh"></span>
 		<?php _e( 'Refresh online projects list', 'poeditor' ); ?>
 	</a>
@@ -172,7 +172,7 @@
 	<h2 class="title poeditorTableTitle">
 		<?php _e('Local language files', 'poeditor'); ?>
 	</h2>
-	<a class="button-secondary poeditorTableExtraLink" href="<?php echo POEDITOR_PATH;?>&amp;do=scan" title="<?php _e( 'Rescan for language files', 'poeditor' ); ?>">
+	<a class="button-secondary poeditorTableExtraLink" href="<?php echo POEDITOR_PATH;?>&amp;do=scan" title="<?php _e( 'Search for local .po and .pot files', 'poeditor' ); ?>">
 		<span class="buttons-icon-refresh"></span>
 		<?php _e( 'Rescan for language files', 'poeditor' ); ?>
 	</a>
