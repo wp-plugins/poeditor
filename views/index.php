@@ -55,17 +55,19 @@
 						?>
 						<tr <?php if( $i % 2 == 0 ) echo 'class="alternate"';?>>
 							<td><?php echo $project['name'];?></td>
-							<td><?php echo $project['language'].' ('.$project['code'].')';?></td>
-							<td><?php echo $project['percentage'];?>%</td>
+							<td><?php echo $project['code'] ? $project['language'].' ('.$project['code'].')' : "";?></td>
+							<td><?php echo $project['code'] ? $project['percentage'] . "%" : '';?></td>
 							<td class="poeditorPadLeft">
 								<?php
 									$key = $project['id'] . '_' . $project['code'];
-									if( isset($assingments[$key]) ) {
-										echo str_replace(WP_CONTENT_DIR, '', $assingments[$key]);
-									} else {
-										?>
-										<a href="#assignFile" project="<?php echo $project['id'];?>" projectName="<?php echo $project['name'];?>" language="<?php echo $project['code'];?>" class="assignFile"><?php _e('Assign file', 'poeditor'); ?></a>
-										<?php
+									if($project['code']){
+										if( isset($assingments[$key])) {
+											echo str_replace(WP_CONTENT_DIR, '', $assingments[$key]);
+										} else {
+											?>
+											<a href="#assignFile" project="<?php echo $project['id'];?>" projectName="<?php echo $project['name'];?>" language="<?php echo $project['code'];?>" class="assignFile"><?php _e('Assign file', 'poeditor'); ?></a>
+											<?php
+										}
 									}
 								?>
 							</td>
@@ -107,9 +109,11 @@
 								<td ></td>
 								<td ></td>
 								<td class="poeditorToRight">
+								<?php if($project['code']) { ?>
 								<a onclick='return confirm("<?php printf(__('Do you really like to download all language files for %s from POEditor.com?', 'poeditor'), $project['name']); ?>");' href="<?php echo POEDITOR_PATH;?>&amp;do=import_all&amp;projectId=<?php echo $project['id'];?>" title="<?php _e('Import .po and .mo files from POEditor for all languages', 'poeditor'); ?>"><?php _e('Import all', 'poeditor'); ?></a> | 
 								<a onclick='return confirm("<?php printf(__('Do you really upload all terms for %s to POEditor.com?', 'poeditor'), $project['name']); ?>");' href="<?php echo POEDITOR_PATH;?>&amp;do=export_all&amp;projectId=<?php echo $project['id'];?>&amp;type=export" title="<?php _e('Export terms to POEditor from all language files', 'poeditor'); ?>"><?php _e('Export all', 'poeditor'); ?></a> |
 								<a onclick='return confirm("<?php printf(__('Do you really upload all definitions for %s POEditor.com?', 'poeditor'), $project['name']); ?>");' href="<?php echo POEDITOR_PATH;?>&amp;do=export_all&amp;projectId=<?php echo $project['id'];?>&amp;type=sync" title="<?php _e('Export terms and translations to POEditor from all language files, overwriting exiting translations', 'poeditor'); ?>"><?php _e('Sync all', 'poeditor'); ?></a>
+								<?php } ?>
 								</td>
 							</tr>
 							<tr>
