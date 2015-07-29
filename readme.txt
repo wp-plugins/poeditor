@@ -19,6 +19,7 @@ It will fetch all your projects from POEditor.com, based on your API KEY, and it
 You can find step by step instructions on how to use the POEditor plugin in this [localization guide](http://blog.poeditor.com/how-to-translate-wordpress-themes-and-plugins-using-the-poeditor-localization-plugin/).
 
 If you want to contribute to the localization of this plugin, please go to the [plugin's translation page](https://poeditor.com/join/project/90c87a6885fac137e7810f31a1a5296f) and join the translation effort.
+
 You can also contribute to plugin's development on [GitHub](https://github.com/POEditor/poeditor_wp_plugin).
 
 == Installation ==
